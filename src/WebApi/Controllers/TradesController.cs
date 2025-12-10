@@ -47,7 +47,7 @@ public class TradesController (
             .Select(c => c.ToString().ToUpperInvariant())
             .ToList();
 
-        logger.LogInformation("Summary: {Count} categories.", categories.Count);
+        logger.LogInformation("Resumo: {Count} categorias.", categories.Count);
 
         return Ok(new ClassificationDtoResponse { Categories = categories });
     }
@@ -59,7 +59,7 @@ public class TradesController (
         {
             var res = await ingestion.IngestAsync(trades, ct);
             var statusUrl = Url?.ActionLink(nameof(GetAnalyzeStatus), values: new { jobId = res.JobId });
-            logger.LogInformation("Accepted job {JobId} with {Count} trades", res.JobId, res.EnqueuedCount);
+            logger.LogInformation("Job {JobId} com {Count} trades", res.JobId, res.EnqueuedCount);
             return Accepted(new { jobId = res.JobId, enqueued = res.EnqueuedCount, statusUrl });
         }
         catch (ArgumentException ex) when (ex.Message == "Nenhum dado foi informado.")
@@ -119,7 +119,7 @@ public class TradesController (
                 kv => new CategorySummaryDto { Count = kv.Value.Count, TotalValue = kv.Value.TotalValue, TopClient = kv.Value.TopClient }
             )
         };
-        logger.LogInformation("Summary: {Count} trades in {Ms}ms", response.Categories.Count, response.ProcessingTimeMs);
+        logger.LogInformation("Resumo: {Count} trades in {Ms}ms", response.Categories.Count, response.ProcessingTimeMs);
         return Ok(response);
     }
 }
