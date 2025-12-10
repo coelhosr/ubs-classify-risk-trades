@@ -15,7 +15,7 @@ public sealed class AnalysisBatchWorker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        const int BATCH_SIZE = 2;
+        const int BATCH_SIZE = 2000;
         var buffer = new List<AnalysisQueueItem>(BATCH_SIZE);
 
         await foreach (var item in channel.Reader.ReadAllAsync(stoppingToken))

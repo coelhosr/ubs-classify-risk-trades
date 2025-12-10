@@ -19,45 +19,200 @@ Arquitetura em camadas (Domain, Application, WebApi) com regras de risco extens�
    ```bash
    dotnet run --project src/WebApi/WebApi.csproj
    ```
-4. Abrir Swagger UI em `http://localhost:5000/swagger` (ou porta mostrada no terminal).
+4. Abrir Swagger UI em `https://localhost:5001/swagger/index.html` (ou porta mostrada no terminal).
 
 ## Endpoints
 
-### POST `/trades/classify`
+### POST `/api/trades/classify`
 **Body**
 ```json
 [
-  { "value": 2000000, "clientSector": "Private" },
-  { "value": 400000,  "clientSector": "Public"  },
-  { "value": 500000,  "clientSector": "Public"  },
-  { "value": 3000000, "clientSector": "Public"  }
+  {
+    "value": 8719.41,
+    "clientSector": "Public",
+    "clientId": null
+  },
+  {
+    "value": 1000000.89,
+    "clientSector": "Public",
+    "clientId": "Cliente1Mi"
+  },
+  {
+    "value": 1796.05,
+    "clientSector": "Private",
+    "clientId": "C002"
+  },
+  {
+    "value": 2399.26,
+    "clientSector": "Private",
+    "clientId": "C003"
+  },
+  {
+    "value": 60865.75,
+    "clientSector": "Private",
+    "clientId": null
+  },
+  {
+    "value": 67.89,
+    "clientSector": "Public",
+    "clientId": null
+  },
+
+  {
+    "value": 2000000.89,
+    "clientSector": "Private",
+    "clientId": "Cliente2MiMi"
+  }
 ]
 ```
 **Response**
 ```json
-{ "categories": ["HIGHRISK","LOWRISK","LOWRISK","MEDIUMRISK"] }
+{
+  "categories": [
+    "LOWRISK",
+    "MEDIUMRISK",
+    "LOWRISK",
+    "LOWRISK",
+    "LOWRISK",
+    "LOWRISK",
+    "HIGHRISK"
+  ]
+}
 ```
-
-### POST `/trades/analyze`
+### POST `/api/trades/analyze/queue`
 **Body**
 ```json
 [
-  { "value": 2000000, "clientSector": "Private", "clientId": "CLI003" },
-  { "value": 400000,  "clientSector": "Public",  "clientId": "CLI001" },
-  { "value": 500000,  "clientSector": "Public",  "clientId": "CLI001" },
-  { "value": 3000000, "clientSector": "Public",  "clientId": "CLI002" }
+  {
+    "value": 8719.41,
+    "clientSector": "Public",
+    "clientId": null
+  },
+  {
+    "value": 1000000.89,
+    "clientSector": "Public",
+    "clientId": "Cliente1Mi"
+  },
+  {
+    "value": 1796.05,
+    "clientSector": "Private",
+    "clientId": "C002"
+  },
+  {
+    "value": 2399.26,
+    "clientSector": "Private",
+    "clientId": "C003"
+  },
+  {
+    "value": 60865.75,
+    "clientSector": "Private",
+    "clientId": null
+  },
+  {
+    "value": 67.89,
+    "clientSector": "Public",
+    "clientId": null
+  },
+
+  {
+    "value": 2000000.89,
+    "clientSector": "Private",
+    "clientId": "Cliente2MiMi"
+  }
 ]
 ```
+**Response**
+```json
+{
+  "jobId": "b707bd139973450385906b851ee60c63",
+  "enqueued": 7,
+  "statusUrl": "https://localhost:5001/api/trades/analyze/b707bd139973450385906b851ee60c63"
+}
+```
+
+### POST `/api/trades/analyze/{jobId}`
 **Response** (exemplo)
 ```json
 {
-  "categories": ["HIGHRISK","LOWRISK","LOWRISK","MEDIUMRISK"],
-  "summary": {
-    "LOWRISK":   { "count": 2, "totalValue": 900000,  "topClient": "CLI001" },
-    "MEDIUMRISK":{ "count": 1, "totalValue": 3000000, "topClient": "CLI002" },
-    "HIGHRISK":  { "count": 1, "totalValue": 2000000,  "topClient": "CLI003" }
+  "status": "Processando",
+  "processed": 0,
+  "total": 7,
+  "progress": 0
+}
+```
+
+### POST `/api/trades/analyze`
+**Body**
+```json
+[
+  {
+    "value": 8719.41,
+    "clientSector": "Public",
+    "clientId": null
   },
-  "processingTimeMs": 45
+  {
+    "value": 1000000.89,
+    "clientSector": "Public",
+    "clientId": "Cliente1Mi"
+  },
+  {
+    "value": 1796.05,
+    "clientSector": "Private",
+    "clientId": "C002"
+  },
+  {
+    "value": 2399.26,
+    "clientSector": "Private",
+    "clientId": "C003"
+  },
+  {
+    "value": 60865.75,
+    "clientSector": "Private",
+    "clientId": null
+  },
+  {
+    "value": 67.89,
+    "clientSector": "Public",
+    "clientId": null
+  },
+
+  {
+    "value": 2000000.89,
+    "clientSector": "Private",
+    "clientId": "Cliente2MiMi"
+  }
+]
+```
+**Response**
+```json
+{
+  "summary": {
+    "LOWRISK": {
+      "count": 5,
+      "totalValue": 73848.36,
+      "topClient": null
+    },
+    "MEDIUMRISK": {
+      "count": 1,
+      "totalValue": 1000000.89,
+      "topClient": "Cliente1Mi"
+    },
+    "HIGHRISK": {
+      "count": 1,
+      "totalValue": 2000000.89,
+      "topClient": "Cliente2MiMi"
+    }
+  },
+  "processingTimeMs": 4,
+  "categories": [
+    "LOWRISK",
+    "MEDIUMRISK",
+    "LOWRISK",
+    "LOWRISK",
+    "LOWRISK",
+    "LOWRISK",
+    "HIGHRISK"
+  ]
 }
 ```
 
@@ -74,16 +229,23 @@ Executar testes:
 dotnet test
 ```
 Cobre regras de classificação e resumo.
+Bibliotecas predominantes: xUnit e NSubstitute.
 
 ## Estrutura do projeto
 ```
 src/
   Domain/
   Application/
+  Infrastructure
   WebApi/
+tests/
+  ApplicationServiceTests/
+  DomainTests/
+  TradesControllerTests
 ```
 
 ## Extensão futura
 - Novo endpoint para filtros por data/cliente.
 - Persistência opcional.
 - Autenticação se necessário.
+- Melhorias no enfileiramento das trades e remoção do endpoint sem filas.
