@@ -58,7 +58,7 @@ public class TradesController (
         try
         {
             var res = await ingestion.IngestAsync(trades, ct);
-            var statusUrl = Url.ActionLink(nameof(GetAnalyzeStatus), values: new { jobId = res.JobId });
+            var statusUrl = Url?.ActionLink(nameof(GetAnalyzeStatus), values: new { jobId = res.JobId });
             logger.LogInformation("Accepted job {JobId} with {Count} trades", res.JobId, res.EnqueuedCount);
             return Accepted(new { jobId = res.JobId, enqueued = res.EnqueuedCount, statusUrl });
         }
